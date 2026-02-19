@@ -237,8 +237,8 @@ const fragmentShader = `
   }
 
   vec3 galaxyBackground(vec2 fragCoord) {
-    // Centered UV removes corner bias artifacts (e.g. top-right patterned patch).
-    vec2 uv = (fragCoord - 0.5 * uResolution.xy) / uResolution.y;
+    // Centered UV, normalized by min-side to stay proportional on any screen shape.
+    vec2 uv = (fragCoord - 0.5 * uResolution.xy) / max(min(uResolution.x, uResolution.y), 1.0);
     float angle = GALAXY_TILT;
     mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
     vec2 rotatedUv = uv * rotation;
@@ -300,10 +300,12 @@ const fragmentShader = `
 
   void main() {
     vec2 p = vUv - 0.5;
-    p.x *= uResolution.x / max(uResolution.y, 1.0);
+    // Proportional scaling: use min-side so scene never distorts on portrait / landscape.
+    float minDim = min(uResolution.x, uResolution.y);
+    p *= uResolution.xy / max(minDim, 1.0);
 
     vec2 fragCoord = vUv * uResolution.xy;
-    vec2 uv = (2.0 * fragCoord - uResolution.xy) / uResolution.y;
+    vec2 uv = (2.0 * fragCoord - uResolution.xy) / max(minDim, 1.0);
 
     vec3 ro = vec3(0.0, 0.0, -6.7);
     vec3 rd = normalize(vec3(p, 1.35));
@@ -376,7 +378,11 @@ const AuroraPlane: React.FC<AuroraSceneProps> = ({ stats }) => {
 
     material.uniforms.uTime.value = state.clock.getElapsedTime() * TIME_SCALE;
     material.uniforms.uBeat.value = beatRef.current;
-    material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+    // Use actual framebuffer dimensions (CSS pixels × DPR) to match gl_FragCoord.
+    material.uniforms.uResolution.value.set(
+      state.gl.domElement.width,
+      state.gl.domElement.height
+    );
     material.uniforms.uStarDensity.value = STAR_DENSITY;
     material.uniforms.uAuroraIntensity.value = AURORA_INTENSITY;
     material.uniforms.uCoolToneMix.value = COOL_TONE_MIX;

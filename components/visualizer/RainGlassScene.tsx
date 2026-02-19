@@ -13,11 +13,13 @@ interface RainGlassSceneProps {
  * - BEAT_THRESHOLD: higher value = only strong beats change rain/light
  * - LIGHT_COUNT: more city lights = richer bokeh but heavier shader cost
  * - CHEAP_NORMALS: true = faster, false = better glass refraction detail
+ * - SCREEN_BRIGHTNESS: overall brightness multiplier (1.2 = 20% brighter)
  */
 const BASE_RAIN = 0.52;
-const BEAT_THRESHOLD = 0.38;
+const BEAT_THRESHOLD = 0.3;
 const LIGHT_COUNT = 9;
 const CHEAP_NORMALS = true;
+const SCREEN_BRIGHTNESS = 1.2;
 
 const vertexShader = `
   varying vec2 vUv;
@@ -36,6 +38,7 @@ const fragmentShader = `
   uniform vec2 uResolution;
   uniform float uBeat;
   uniform float uRainAmount;
+  uniform float uBrightness;
 
   float S(float a, float b, float t) { return smoothstep(a, b, t); }
 
@@ -116,24 +119,28 @@ const fragmentShader = `
     return vec2(c, max(m1.y * l0, m2.y * l1));
   }
 
-  vec3 cityBokeh(vec2 uv, float t, float blurFactor) {
+  // Bokeh lights using screen-proportional UV (pixels / minDim) so lights
+  // stay circular and evenly distributed regardless of aspect ratio.
+  vec3 cityBokeh(vec2 screenUV, float t, float blurFactor) {
     vec3 col = vec3(0.0);
     float pulse = 0.1 + uBeat * 0.12;
     float dynamicBlur = mix(0.03, 0.11, clamp(blurFactor / 6.0, 0.0, 1.0));
+    // Screen extent in proportional units so centers fill the whole screen.
+    vec2 screenMax = uResolution / min(uResolution.x, uResolution.y);
 
     for (int i = 0; i < ${LIGHT_COUNT}; i++) {
       float fi = float(i);
       float seed = fi * 17.13;
       vec2 center = vec2(
-        fract(sin(seed * 0.83) * 3123.1),
-        fract(cos(seed * 1.11) * 4567.2)
+        fract(sin(seed * 0.83) * 3123.1) * screenMax.x,
+        fract(cos(seed * 1.11) * 4567.2) * screenMax.y
       );
 
       center.x += sin(t * (0.03 + fi * 0.004) + fi) * 0.08;
       center.y += cos(t * (0.025 + fi * 0.003) + fi * 1.7) * 0.05;
 
       float r = 0.04 + fract(seed) * 0.08 + dynamicBlur;
-      float d = length(uv - center);
+      float d = length(screenUV - center);
       float blob = smoothstep(r + 0.06, r - 0.02, d);
 
       vec3 lightColor = vec3(
@@ -149,8 +156,11 @@ const fragmentShader = `
   }
 
   void main() {
-    vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
-    vec2 UV = gl_FragCoord.xy / uResolution.xy;
+    // Normalize by shortest side so rain/bokeh stay proportional on any aspect ratio.
+    float minDim = min(uResolution.x, uResolution.y);
+    vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / minDim;
+    // Screen-proportional UV for bokeh (same pixel-per-unit in x and y).
+    vec2 screenUV = gl_FragCoord.xy / minDim;
     float T = uTime;
     float t = T * 0.2;
 
@@ -175,7 +185,7 @@ const fragmentShader = `
     }
 
     float focus = mix(maxBlur - c.y, minBlur, S(.1, .2, c.x));
-    vec3 col = cityBokeh(UV + n * 0.45, T, focus);
+    vec3 col = cityBokeh(screenUV + n * 0.35, T, focus);
 
     // Fog layer + color grading
     float fog = 0.42 + 0.28 * smoothstep(0.0, 1.0, rainAmount);
@@ -184,8 +194,11 @@ const fragmentShader = `
     // Subtle lightning-like pulse on stronger beats
     col *= 1.0 + uBeat * 0.18;
 
-    // Vignette
-    vec2 v = UV - 0.5;
+    // Apply brightness multiplier
+    col *= uBrightness;
+
+    // Vignette — use 0-1 UV for correct screen centering
+    vec2 v = gl_FragCoord.xy / uResolution.xy - 0.5;
     col *= 1.0 - dot(v, v) * 1.2;
     col = max(col, vec3(0.0));
 
@@ -203,6 +216,7 @@ const RainGlassPlane: React.FC<RainGlassSceneProps> = ({ stats }) => {
       uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
       uBeat: { value: 0 },
       uRainAmount: { value: BASE_RAIN },
+      uBrightness: { value: SCREEN_BRIGHTNESS },
     }),
     []
   );
@@ -219,7 +233,12 @@ const RainGlassPlane: React.FC<RainGlassSceneProps> = ({ stats }) => {
     material.uniforms.uTime.value = state.clock.getElapsedTime();
     material.uniforms.uBeat.value = beatRef.current;
     material.uniforms.uRainAmount.value = BASE_RAIN;
-    material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+    material.uniforms.uBrightness.value = SCREEN_BRIGHTNESS;
+    // Use actual framebuffer dimensions (CSS pixels × DPR) to match gl_FragCoord.
+    material.uniforms.uResolution.value.set(
+      state.gl.domElement.width,
+      state.gl.domElement.height
+    );
   });
 
   return (
@@ -239,5 +258,3 @@ export const RainGlassScene: React.FC<RainGlassSceneProps> = ({ stats }) => {
     </div>
   );
 };
-
-

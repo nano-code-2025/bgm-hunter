@@ -72,17 +72,28 @@ flowchart LR
 
 ## 5) Mobile Adaptation Plan
 
-1. Define viewport matrix:
-   - 360x800
-   - 390x844
-   - 412x915
-   - 768x1024
-2. Theme-level checks:
-   - no background offset
-   - no overflow clipping
-   - stable interaction layers (player/search/sidebar/modal)
-3. Add fallback rules:
-   - auto downgrade heavy effects for low resolution or low FPS.
+> **All changes MUST be mobile-first**: validate on portrait viewports (360–412px width) before merging.
+
+### 5.1 Viewport matrix
+| Width | Height | Example device     |
+|-------|--------|--------------------|
+| 360   | 800    | Galaxy S21         |
+| 390   | 844    | iPhone 14          |
+| 412   | 915    | Pixel 7            |
+| 768   | 1024   | iPad Mini          |
+
+### 5.2 Shader rendering rules (resolved)
+- All full-screen shaders (`RainGlassScene`, `AuroraScene`, `MilkyWayBackdrop`) use clip-space 2×2 quads with `gl_Position = vec4(position.xy, 0, 1)`.
+- UV normalised by `min(uResolution.x, uResolution.y)` for aspect-ratio-independent rendering.
+- `uResolution` sourced from `state.gl.domElement.width/height` (framebuffer pixels, not CSS pixels) to avoid DPR mismatch.
+
+### 5.3 Theme-level checks
+- No background offset or overflow clipping on any viewport.
+- Stable interaction layers (player / search / sidebar / modal).
+- Waveform bar heights scale dynamically per viewport width.
+
+### 5.4 Fallback rules (planned)
+- Auto downgrade heavy effects for low resolution or low FPS.
 
 ## 6) Authentication and User Management Plan
 

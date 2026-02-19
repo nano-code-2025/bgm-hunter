@@ -1,5 +1,5 @@
 # Recommendation Engine V2 Plan
-
+# 这里需要先调研一下网易云音乐spotify，还有youtube music，他们的这个搜索和推荐系统是什么样的架构，有没有开源的代码或者逻辑可以进行参考的。
 ## TL;DR
 - The current bottleneck is not UI, but retrieval breadth + ranking logic.
 - V2 should combine multi-query retrieval, popularity-aware ranking, diversity control, and user preference fusion.

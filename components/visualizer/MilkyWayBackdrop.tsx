@@ -9,18 +9,16 @@ interface MilkyWayBackdropProps {
 }
 
 const vertexShader = `
-  varying vec2 vUv;
-
   void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    // Full-screen clip-space quad — bypasses camera projection entirely,
+    // so the galaxy always fills the viewport regardless of camera type or plane size.
+    gl_Position = vec4(position.xy, 0.0, 1.0);
   }
 `;
 
 const fragmentShader = `
   precision highp float;
 
-  varying vec2 vUv;
   uniform float uTime;
   uniform vec2 uResolution;
   uniform float uBeat;
@@ -158,9 +156,10 @@ const fragmentShader = `
   }
 
   void main() {
-    vec2 uv = vUv * 2.0 - 1.0;
-    uv *= 0.5;
-    uv.x *= uResolution.x / max(uResolution.y, 1.0);
+    // gl_FragCoord-based UV: viewport-aware, works on any aspect ratio including mobile portrait.
+    // Normalise by shortest side so the galaxy maintains proportional shape.
+    float minDim = max(min(uResolution.x, uResolution.y), 1.0);
+    vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / minDim;
 
     // Keep position stable to avoid theme-switch drift/offset artifacts.
     vec2 pos = (rotationMatrix(vec3(0.0, 0.0, 1.0), 0.2415) * vec3(uv, 0.0)).xy;
@@ -201,12 +200,17 @@ export const MilkyWayBackdrop: React.FC<MilkyWayBackdropProps> = ({ stats, theme
     material.uniforms.uTime.value = state.clock.getElapsedTime() * 0.5;
     material.uniforms.uBeat.value = beatRef.current;
     material.uniforms.uTint.value = theme === 'halo' ? 0.78 : 0.62;
-    material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+    // Use actual framebuffer dimensions (CSS pixels × DPR) to match gl_FragCoord.
+    material.uniforms.uResolution.value.set(
+      state.gl.domElement.width,
+      state.gl.domElement.height
+    );
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 0, -7.8]} renderOrder={-10}>
-      <planeGeometry args={[30, 18]} />
+    <mesh ref={meshRef} renderOrder={-10}>
+      {/* 2×2 clip-space quad fills the entire viewport */}
+      <planeGeometry args={[2, 2]} />
       <shaderMaterial
         uniforms={uniforms}
         vertexShader={vertexShader}
@@ -214,7 +218,6 @@ export const MilkyWayBackdrop: React.FC<MilkyWayBackdropProps> = ({ stats, theme
         depthWrite={false}
         depthTest={false}
         transparent
-        opacity={0.42}
       />
     </mesh>
   );

@@ -87,14 +87,14 @@ export const App: React.FC = () => {
     if (trackIndex !== -1) {
       player.setCurrentTrackIndex(trackIndex);
       player.setIsPlaying(true);
-    } else {
+      } else {
       // Allow playing tracks from collections even if they are not in current search results.
       searchState.setTracks((prev) => [track, ...prev.filter((t) => t.id !== track.id)]);
       player.setCurrentTrackIndex(0);
       player.setIsPlaying(true);
     }
     setIsCollectionModalOpen(false);
-  };
+    };
 
   const handleToggleFavorite = () => {
     const current = player.currentTrack;
@@ -125,7 +125,7 @@ export const App: React.FC = () => {
 
       {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 p-5 md:p-8 flex items-center justify-between">
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-2.5"
@@ -139,7 +139,7 @@ export const App: React.FC = () => {
           <span className="text-base font-bold tracking-tighter uppercase sm:hidden">BGM_HP</span>
         </motion.div>
 
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-2 md:gap-4"
@@ -166,18 +166,18 @@ export const App: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
               transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-              className="w-full flex flex-col items-center gap-8 md:gap-12"
+              className="w-full flex flex-col items-center gap-5 sm:gap-8 md:gap-12"
             >
               <div className="text-center px-4">
-                <motion.h1
+                <motion.h1 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-4xl md:text-7xl font-bold tracking-tighter mb-4 leading-tight"
+                  className="text-3xl sm:text-4xl md:text-7xl font-bold tracking-tighter mb-2 sm:mb-4 leading-tight"
                 >
                   Perfect BGM, <br className="hidden md:block" />
                   <span className="text-white/30">Powered by AI.</span>
                 </motion.h1>
-                <motion.p
+                <motion.p 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
@@ -187,7 +187,7 @@ export const App: React.FC = () => {
                   find the perfect sonic match.
                 </motion.p>
               </div>
-
+              
               <SearchPanel onSearch={handleSearch} isLoading={searchState.isLoading} />
             </motion.div>
           ) : (
@@ -196,9 +196,9 @@ export const App: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="w-full h-full flex flex-col items-center justify-center pt-16 md:pt-20"
+              className="w-full h-full flex flex-col items-center justify-center pt-14 md:pt-20"
             >
-              <button
+              <button 
                 onClick={() => {
                   player.setIsPlaying(false);
                   setView('landing');
@@ -210,14 +210,14 @@ export const App: React.FC = () => {
               </button>
 
               {/* Analysis Summary */}
-              <div className="flex flex-col items-center gap-3 mb-6 md:mb-10 text-center max-w-xs md:max-w-md">
-                <motion.span
+              <div className="flex flex-col items-center gap-2 sm:gap-3 mb-3 sm:mb-6 md:mb-8 text-center max-w-xs md:max-w-md">
+                <motion.span 
                   layoutId="mood-badge"
                   className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] md:text-[10px] uppercase tracking-[0.25em] text-purple-400 font-bold backdrop-blur-sm"
                 >
                   {searchState.analysis?.moods[0] || 'Neutral'} Atmosphere
                 </motion.span>
-                <motion.p
+                <motion.p 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-neutral-400 text-xs md:text-sm italic px-4 line-clamp-2"
@@ -240,7 +240,7 @@ export const App: React.FC = () => {
               </div>
 
               {/* Player */}
-              <CentralPlayer
+              <CentralPlayer 
                 tracks={searchState.tracks}
                 currentTrackIndex={player.currentTrackIndex}
                 onSelectTrack={(index) => {
@@ -273,11 +273,11 @@ export const App: React.FC = () => {
               {/* Standalone Shuffle Button */}
               <button
                 onClick={handleRefresh}
-                className="mt-7 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-neutral-400 hover:text-white hover:border-white/30 transition-all text-xs md:text-sm flex items-center gap-2"
-              >
+                className="mt-3 sm:mt-5 md:mt-7 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-white/5 border border-white/10 text-neutral-400 hover:text-white hover:border-white/30 transition-all text-xs md:text-sm flex items-center gap-2"
+                    >
                 <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 <span>Shuffle</span>
-              </button>
+                    </button>
 
             </motion.div>
           )}
