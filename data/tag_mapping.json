@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "description": "用户界面标签到 Jamendo API 标签的映射配置",
+  "mappings": {
+    "genres": {
+      "Rock": ["rock", "indierock", "alternativerock", "classicrock", "bluesrock", "hardrock", "rocknroll", "grunge", "postrock", "progressiverock", "powermetal", "heavymetal"],
+      "Pop": ["pop", "poprock", "indiepop", "alternativepop", "electropop", "synthpop"],
+      "Latin": ["latin", "latinjazz", "reggaeton", "salsa", "flamenco"],
+      "Metal": ["metal", "heavymetal", "powermetal"],
+      "Electronic": ["electronic", "electronica", "techno", "house", "deephouse", "progressivehouse", "edm", "trance", "dubstep", "futurebass", "drumnbass", "trap", "breakbeat", "electroswing"],
+      "Hip Hop/Rap": ["hiphop", "rap", "trap"],
+      "Alternative/Indie": ["indie", "indierock", "indiepop", "alternativerock", "alternativepop", "alternativernb"],
+      "Folk": ["folk"],
+      "R&B/Soul": ["rnb", "soul", "alternativernb"],
+      "Country": ["country", "western", "bluegrass"],
+      "Classical": ["classical", "neoclassical", "symphonic", "contemporarypiano"],
+      "Jazz": ["jazz", "smoothjazz", "jazzfusion", "jazzfunk", "acidjazz", "latinjazz", "swing"],
+      "Reggae": ["reggae", "dub", "dancehall"],
+      "Blues": ["blues", "bluesrock"],
+      "Easy Listening": ["easylistening", "chillout", "downtempo"],
+      "New Age": ["newage"],
+      "World Music": ["world", "african", "afrobeat", "balkan", "flamenco"],
+      "Experimental": ["experimental", "avantgarde", "triphop"],
+      "Chinese Tradition": ["world", "chinese"]
+    },
+    "moods": {
+      "Excited": ["energetic", "upbeat", "dynamic"],
+      "Happy": ["happy", "upbeat", "cheerful"],
+      "Chill": ["chillout", "calm", "peaceful", "relaxing"],
+      "Sorrow": ["sad", "melancholy"],
+      "Angry": ["aggressive", "intense"],
+      "Romantic": ["romantic", "sweet", "intimate"],
+      "Cute": ["playful", "quirky", "fun"],
+      "Dynamic": ["energetic", "dynamic", "powerful"],
+      "Tense": ["tense", "suspenseful", "dramatic"],
+      "Inspirational": ["uplifting", "inspiring", "motivational"],
+      "Sweet": ["sweet", "gentle", "soft"]
+    },
+    "themes": {
+      "Food": ["food", "cooking", "culinary"],
+      "Sound Effect": ["soundeffect", "fx", "sfx"],
+      "Spring": ["spring", "fresh", "bright"],
+      "Autumn": ["autumn", "fall", "cozy"],
+      "Danceable": ["dance", "danceable", "groovy"],
+      "Beauty&Fashion": ["fashion", "beauty", "elegant", "sophisticated"],
+      "Healing": ["healing", "meditation", "calm", "peaceful"],
+      "Sport": ["sport", "fitness", "athletic", "energetic"],
+      "Transition": ["transition", "bridge", "intro", "outro"],
+      "ACG": ["game", "gaming", "8bit", "chiptune"],
+      "Campus": ["campus", "youth", "student"],
+      "Vlog": ["vlog", "lifestyle", "casual"],
+      "Pet": ["pet", "animal", "cute"],
+      "Cool": ["cool", "stylish", "urban"],
+      "Game": ["game", "gaming", "8bit", "chiptune", "arcade"],
+      "DIY": ["diy", "creative", "handmade"]
+    }
+  },
+  "jamendoTagCategories": {
+    "genres": "音乐类型/风格",
+    "instruments": "乐器",
+    "vartags": "情绪/场景标签"
+  }
+}
+
